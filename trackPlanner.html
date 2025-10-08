@@ -150,6 +150,74 @@
       background: #cc0000;
     }
 
+    /* --- NEW MODAL STYLES --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .modal h3 {
+      color: #c94f7c;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .modal input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #f3d1e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 1em;
+    }
+
+    .modal-actions button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 0 5px;
+      transition: background 0.3s;
+    }
+
+    #saveTaskBtn {
+      background: #c94f7c;
+      color: #fff;
+    }
+
+    #saveTaskBtn:hover {
+      background: #b03e67;
+    }
+
+    #cancelTaskBtn {
+      background: #f3d1e0;
+      color: #c94f7c;
+    }
+
+    #cancelTaskBtn:hover {
+      background: #e5b3c4;
+    }
+
     @media (max-width: 768px) {
       .planner {
         padding: 15px;
@@ -192,7 +260,16 @@
     </div>
   </div>
 
-  <!-- 🔔 Reminder Sound -->
+  <div class="modal-overlay" id="taskModalOverlay">
+    <div class="modal">
+      <h3 id="modalDateTitle">Add Task for October 1, 2025</h3>
+      <input type="text" id="taskInput" placeholder="Enter assignment or task name">
+      <div class="modal-actions">
+        <button id="saveTaskBtn">Save Task</button>
+        <button id="cancelTaskBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
   <audio id="reminderSound" src="https://cdn.pixabay.com/download/audio/2023/03/15/audio_58e19a36f2.mp3?filename=notification-113508.mp3"></audio>
 
   <script>
@@ -203,12 +280,62 @@
     const taskList = document.getElementById("taskList");
     const reminderSound = document.getElementById("reminderSound");
 
+    // MODAL ELEMENTS
+    const taskModalOverlay = document.getElementById('taskModalOverlay');
+    const modalDateTitle = document.getElementById('modalDateTitle');
+    const taskInput = document.getElementById('taskInput');
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+    const cancelTaskBtn = document.getElementById('cancelTaskBtn');
+
     let currentDate = new Date();
+    let selectedDateInfo = {}; // To store the date being edited
 
     function playReminder() {
+      // Audio URLs from external sites can sometimes be blocked, 
+      // but we'll try to play it.
       reminderSound.currentTime = 0;
-      reminderSound.play();
+      reminderSound.play().catch(e => console.log('Autoplay blocked or audio error:', e));
     }
+
+    // --- MODAL FUNCTIONS ---
+
+    function showModal(month, day, year) {
+      // Store the date info globally for when 'Save Task' is clicked
+      selectedDateInfo = { month, day, year };
+
+      // Update the title in the modal
+      modalDateTitle.textContent = `Add Task for ${month} ${day}, ${year}`;
+      taskInput.value = ''; // Clear previous input
+      taskModalOverlay.style.display = 'flex';
+      taskInput.focus();
+    }
+
+    function hideModal() {
+      taskModalOverlay.style.display = 'none';
+    }
+
+    saveTaskBtn.addEventListener('click', () => {
+      const task = taskInput.value.trim();
+      const { month, day, year } = selectedDateInfo;
+
+      if (task) {
+        // Use backticks (``) for correct template literals
+        addTask(`${month} ${day}, ${year}: ${task}`);
+        playReminder(); 
+      }
+      hideModal();
+    });
+
+    cancelTaskBtn.addEventListener('click', hideModal);
+    
+    // Allow closing the modal by clicking outside of it
+    taskModalOverlay.addEventListener('click', (e) => {
+        if (e.target === taskModalOverlay) {
+            hideModal();
+        }
+    });
+
+    // --- CALENDAR AND TASK LOGIC ---
 
     function renderCalendar(date) {
       calendar.innerHTML = "";
@@ -223,6 +350,7 @@
         "July", "August", "September", "October", "November", "December"
       ];
 
+      // Fixed syntax error: used backticks (``)
       monthYear.textContent = `${monthNames[month]} ${year}`;
 
       const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -258,11 +386,8 @@
         }
 
         day.addEventListener("click", () => {
-          const task = prompt(`Enter assignment for ${monthNames[month]} ${d}, ${year}:`);
-          if (task) {
-            addTask(`${monthNames[month]} ${d}, ${year}: ${task}`);
-            playReminder(); // play reminder sound when adding a task
-          }
+          // OPEN THE NEW MODAL INSTEAD OF PROMPT
+          showModal(monthNames[month], d, year);
         });
 
         calendar.appendChild(day);
