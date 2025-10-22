@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfume Shop with Checkout</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 {
+      color: #333;
+    }
+    #cart {
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    #products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .product {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      text-align: center;
+    }
+    .product:hover {
+      transform: scale(1.05);
+    }
+    .product img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .product h3 {
+      margin: 10px 0 5px;
+      color: #444;
+    }
+    .price {
+      color: #e91e63;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    button {
+      background: #e91e63;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #c2185b;
+    }
+
+    /* Checkout Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal h2 {
+      color: #e91e63;
+    }
+    .cart-items {
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+      margin: 15px 0;
+    }
+    .cart-items p {
+      margin: 5px 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    .close-btn {
+      background: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌸 Perfume Shop 🌸</h1>
+    <div id="cart">🛒 Cart: <span id="cartCount">0</span> items | Total: ₱<span id="cartTotal">0</span></div>
+  </header>
+
+  <div id="products">Loading perfumes...</div>
+
+  <!-- Checkout Modal -->
+  <div id="checkoutModal" class="modal">
+    <div class="modal-content">
+      <h2>🧾 Your Receipt</h2>
+      <div class="cart-items" id="cartItems"></div>
+      <h3>Total: ₱<span id="checkoutTotal">0</span></h3>
+      <button id="confirmBtn">Confirm Purchase</button>
+      <button class="close-btn" id="closeBtn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let cart = [];
+
+    // Fetch perfume data
+    fetch("https://mocki.io/v1/67b2de38-b826-4edb-bb1b-8f3c5f54eeb4") // replace with your JSON if needed
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById("products");
+        container.innerHTML = data.map((perfume, index) => `
+          <div class="product">
+            <img src="${perfume.image}" alt="${perfume.name}">
+            <h3>${perfume.name}</h3>
+            <p>${perfume.description}</p>
+            <div class="price">₱${perfume.price}</div>
+            <button onclick="addToCart(${index}, '${perfume.name}', ${perfume.price})">Buy Now</button>
+          </div>
+        `).join("");
+      })
+      .catch(error => {
+        document.getElementById("products").innerText = "Failed to load perfumes 😢";
+        console.error("Error fetching perfumes:", error);
+      });
+
+    // Add item to cart
+    function addToCart(id, name, price) {
+      cart.push({ id, name, price });
+      updateCart();
+    }
+
+    // Update cart display
+    function updateCart() {
+      document.getElementById("cartCount").innerText = cart.length;
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById("cartTotal").innerText = total;
+    }
+
+    // Checkout popup logic
+    const modal = document.getElementById("checkoutModal");
+    const cartDiv = document.getElementById("cart");
+    const cartItemsDiv = document.getElementById("cartItems");
+    const checkoutTotal = document.getElementById("checkoutTotal");
+
+    cartDiv.addEventListener("click", () => {
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+      modal.style.display = "flex";
+      cartItemsDiv.innerHTML = cart.map(item => `
+        <p>🧴 ${item.name} — ₱${item.price}</p>
+      `).join("");
+      checkoutTotal.innerText = cart.reduce((sum, item) => sum + item.price, 0);
+    });
+
+    document.getElementById("closeBtn").addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    document.getElementById("confirmBtn").addEventListener("click", () => {
+      alert("✅ Thank you for your purchase!");
+      cart = [];
+      updateCart();
+      modal.style.display = "none";
+    });
+  </script>
+</body>
+</html>
