@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tropical Basket</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to bottom right, #f9f9f9, #d4f0d3);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #2c6e49;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      color: #555;
+      letter-spacing: 1px;
+    }
+
+    .shop-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 25px;
+      width: 90%;
+      max-width: 1100px;
+      margin-top: 30px;
+    }
+
+    .fruit-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      padding: 20px;
+      transition: 0.3s;
+    }
+
+    .fruit-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .fruit-card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 4px solid #2c6e49;
+    }
+
+    .fruit-card h2 {
+      font-size: 1.4rem;
+      color: #2c6e49;
+      margin-bottom: 10px;
+    }
+
+    .fruit-card p {
+      font-size: 0.9rem;
+      color: #444;
+      margin-bottom: 10px;
+      height: 50px;
+    }
+
+    .price {
+      font-weight: bold;
+      font-size: 1rem;
+      color: #1a531b;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #2c6e49;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #1a531b;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🍍 Tropical Basket</h1>
+    <p>Fresh tropical fruits for a healthier you!</p>
+  </header>
+
+  <section class="shop-container" id="fruit-list">
+    <!-- Fruit cards will be loaded here by JavaScript -->
+  </section>
+
+  <footer>
+    <p>© 2025 Tropical Basket | Freshness Guaranteed 🌿</p>
+  </footer>
+
+  <script>
+    const fruits = [
+      {
+        name: "Pineapple",
+        description: "A juicy tropical fruit packed with vitamin C and enzymes for digestion.",
+        price: 130,
+        image: "Pineapple.jpg"
+      },
+      {
+        name: "Banana",
+        description: "Rich in potassium and fiber, perfect for energy and heart health.",
+        price: 85,
+        image: "Banana.jpg"
+      },
+      {
+        name: "Papaya",
+        description: "Sweet and soft fruit that supports digestion and skin health.",
+        price: 120,
+        image: "Papaya.jpg"
+      },
+      {
+        name: "Coconut",
+        description: "Refreshing fruit known for its hydrating water and healthy fats.",
+        price: 95,
+        image: "Coconut.jpg"
+      },
+      {
+        name: "Dragon Fruit",
+        description: "Bright, exotic fruit loaded with antioxidants and vitamin C.",
+        price: 150,
+        image: "Dragonfruit.jpg"
+      }
+    ];
+
+    const fruitList = document.getElementById("fruit-list");
+
+    fruits.forEach(fruit => {
+      const card = document.createElement("div");
+      card.classList.add("fruit-card");
+
+      card.innerHTML = `
+        <img src="${fruit.image}" alt="${fruit.name}">
+        <h2>${fruit.name}</h2>
+        <p>${fruit.description}</p>
+        <div class="price">₱${fruit.price}.00 per kilo</div>
+        <button onclick="addToCart('${fruit.name}')">Add to Cart</button>
+      `;
+
+      fruitList.appendChild(card);
+    });
+
+    function addToCart(name) {
+      alert(`${name} has been added to your cart! `);
+    }
+  </script>
+
+</body>
+</html>
